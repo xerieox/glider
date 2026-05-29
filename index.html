@@ -126,6 +126,34 @@
         @keyframes slideIn {
             from { transform: translateY(20px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
+
+            /* --- CONTRIBUTE BUTTON --- */
+        .contribute-btn {
+            background: transparent;
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+        }
+
+        .contribute-btn:hover {
+            background: var(--accent);
+            color: #0b1622; /* Matches the dark background */
+            box-shadow: 0 0 10px rgba(38, 177, 165, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .contribute-btn:active {
+            transform: translateY(1px);
+        }
         }
     </style>
 </head>
@@ -170,7 +198,10 @@
     <div id="archive-ui">
         <div class="archive-header-block">
             <div id="header-mount"></div>
-            <img src="https://i.postimg.cc/bwJRGJZJ/glider.png" class="archive-header-logo" onclick="showHome()" alt="Glider Studies Asset">
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <a href="https://forms.office.com/r/zGnP2D6Anb" target="_blank" class="contribute-btn">Contribute</a>
+                <img src="https://i.postimg.cc/bwJRGJZJ/glider.png" class="archive-header-logo" onclick="showHome()" alt="Glider Studies Asset">
+            </div>
         </div>
         
         <div class="section-heading" id="proxy-title-mount"></div>
