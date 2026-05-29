@@ -106,7 +106,27 @@
         .archive-footer img { height: 40px; filter: grayscale(1) brightness(1.2); transition: filter 0.3s; cursor: pointer; }
         .archive-footer:hover img { filter: grayscale(0) brightness(1.1); }
 
-        #kill-notice { position: fixed; bottom: 10px; right: 10px; font-size: 0.7rem; color: rgba(0,0,0,0.2); z-index: 9999; }
+        /* --- NOTICES AND POPUPS --- */
+        #kill-notice { position: fixed; bottom: 10px; left: 10px; font-size: 0.7rem; color: rgba(0,0,0,0.2); z-index: 9999; pointer-events: none; }
+
+        .popup-banner {
+            position: fixed; bottom: 20px; right: 20px; background: #e74c3c; color: white;
+            padding: 12px 40px 12px 18px; border-radius: 6px; font-family: sans-serif;
+            font-size: 0.9rem; font-weight: 600; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 10000; display: none; align-items: center; border: 1px solid #c0392b;
+            animation: slideIn 0.3s ease-out;
+        }
+        .popup-banner .close-btn {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            cursor: pointer; font-size: 1.2rem; font-weight: bold; color: rgba(255,255,255,0.8);
+            line-height: 1; transition: color 0.2s;
+        }
+        .popup-banner .close-btn:hover { color: white; }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
     </style>
 </head>
 <body>
@@ -166,33 +186,42 @@
     </div>
 
     <div id="kill-notice">Shift+K to Terminate Session</div>
+    <div id="pop-blocker-notice" class="popup-banner">
+        <span>Please allow Pop-ups for this site to work properly</span>
+        <span class="close-btn" onclick="closeNotice()">&times;</span>
+    </div>
 
     <script>
         const safeDecode = (str) => atob(str);
 
-        // --- DYNAMIC REFLECTIVE INITIALIZATION RUNNER ---
+        // --- AUTOMATIC INITIALIZATION CLOAK RUNNER ---
         (function autoCloakAndRun() {
-            // Evaluates execution frame state context
             if (window.top === window.self) {
-                // Instantly query current execution location target path dynamically
-                const originalSourceLocation = window.location.href;
-
                 const targetBlankTab = window.open('about:blank', '_blank');
-                if (targetBlankTab) {
+                
+                if (targetBlankTab && !targetBlankTab.closed) {
                     const targetDoc = targetBlankTab.document;
                     targetDoc.open();
-                    // Injects complete structure explicitly containing source mapping parameters
                     targetDoc.write(document.documentElement.outerHTML);
                     targetDoc.close();
                     
-                    // Replace deployment origin history tracking data immediately with Schoology
                     window.location.replace("https://dublin.schoology.com/");
                 } else {
-                    // Fail-safing execution layers if tab rules prevent immediate launch
-                    console.warn("Display instance restricted.");
+                    // Fallback: If immediate launch is blocked, let the portal display normally on page load
+                    console.warn("Primary containment layer deferred due to tab layout permissions.");
+                    showNotice();
                 }
             }
         })();
+
+        // --- POPUP NOTICE UTILITIES ---
+        function showNotice() {
+            document.getElementById('pop-blocker-notice').style.display = 'flex';
+        }
+
+        function closeNotice() {
+            document.getElementById('pop-blocker-notice').style.display = 'none';
+        }
 
         document.getElementById('header-mount').innerHTML = `<h1>${safeDecode('SW50ZXJuYWwgUmVzZWFyY2ggRGF0YWJhc2U=')}</h1><p style="opacity: 0.7; margin-top: -10px;">${safeDecode('Q29uZmlkZW50aWFsIEFyY2hpdmUgYWNjZXNzZWQ=')}</p>`;
         
@@ -253,9 +282,11 @@
             renderUI(groups);
         }
 
+        // --- SAFE INTERCEPTING WINDOW LAUNCH RULES ---
         function openInAboutBlank(targetUrl) {
             const blankWindow = window.open('about:blank', '_blank');
-            if (blankWindow) {
+            
+            if (blankWindow && !blankWindow.closed) {
                 const doc = blankWindow.document;
                 doc.write(`
                     <!DOCTYPE html>
@@ -274,6 +305,9 @@
                     </html>
                 `);
                 doc.close();
+            } else {
+                // Trigger the alert popup layout engine if launch configuration criteria fail
+                showNotice();
             }
         }
 
