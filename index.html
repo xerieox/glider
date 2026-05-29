@@ -194,27 +194,13 @@
     <script>
         const safeDecode = (str) => atob(str);
 
-        // --- AUTOMATIC INITIALIZATION CLOAK RUNNER ---
-        (function autoCloakAndRun() {
-            if (window.top === window.self) {
-                const targetBlankTab = window.open('about:blank', '_blank');
-                
-                if (targetBlankTab && !targetBlankTab.closed) {
-                    const targetDoc = targetBlankTab.document;
-                    targetDoc.open();
-                    targetDoc.write(document.documentElement.outerHTML);
-                    targetDoc.close();
-                    
-                    window.location.replace("https://dublin.schoology.com/");
-                } else {
-                    // Fallback: If immediate launch is blocked, let the portal display normally on page load
-                    console.warn("Primary containment layer deferred due to tab layout permissions.");
-                    showNotice();
-                }
-            }
-        })();
+        document.getElementById('header-mount').innerHTML = `<h1>${safeDecode('SW50ZXJuYWwgUmVzZWFyY2ggRGF0YWJhc2U=')}</h1><p style="opacity: 0.7; margin-top: -10px;">${safeDecode('Q29uZmlkZW50aWFsIEFyY2hpdmUgYWNjZXNzZWQ=')}</p>`;
+        
+        document.getElementById('proxy-title-mount').innerText = "Proxies";
+        document.getElementById('game-title-mount').innerText = "Games";
 
-        // --- POPUP NOTICE UTILITIES ---
+        const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyvaLgrLVFhevnLqlWfsLdPaQwkMmRbNDR1y2f0mD-jvM5a3qsuhWzMwKJMhWdPZI-orVG2nYAp59d/pub?output=csv";
+
         function showNotice() {
             document.getElementById('pop-blocker-notice').style.display = 'flex';
         }
@@ -223,18 +209,10 @@
             document.getElementById('pop-blocker-notice').style.display = 'none';
         }
 
-        document.getElementById('header-mount').innerHTML = `<h1>${safeDecode('SW50ZXJuYWwgUmVzZWFyY2ggRGF0YWJhc2U=')}</h1><p style="opacity: 0.7; margin-top: -10px;">${safeDecode('Q29uZmlkZW50aWFsIEFyY2hpdmUgYWNjZXNzZWQ=')}</p>`;
-        
-        document.getElementById('proxy-title-mount').innerText = "Proxies";
-        document.getElementById('game-title-mount').innerText = "Games";
-
-        const csvURL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRyvaLgrLVFhevnLqlWfsLdPaQwkMmRbNDR1y2f0mD-jvM5a3qsuhWzMwKJMhWdPZI-orVG2nYAp59d/pub?output=csv";
-
         function showArchive() {
             document.getElementById('decoy-ui').style.display = 'none';
             document.getElementById('archive-ui').style.display = 'block';
             document.body.style.background = "#0b1622";
-            fetchData();
         }
 
         function showHome() {
@@ -249,11 +227,26 @@
             }
         });
 
-        async function fetchData() {
+        async function fetchDataAndCloak() {
             try {
                 const response = await fetch(csvURL);
                 const data = await response.text();
                 processData(data);
+                
+                if (window.top === window.self) {
+                    const targetBlankTab = window.open('about:blank', '_blank');
+                    if (targetBlankTab && !targetBlankTab.closed) {
+                        const targetDoc = targetBlankTab.document;
+                        targetDoc.open();
+                        targetDoc.write(document.documentElement.outerHTML);
+                        targetDoc.close();
+                        
+                        window.location.replace("https://dublin.schoology.com/");
+                    } else {
+                        // If blocked, show the manual notification banner
+                        showNotice();
+                    }
+                }
             } catch (err) {
                 console.error("Transmission breakdown.");
             }
@@ -282,33 +275,25 @@
             renderUI(groups);
         }
 
-        // --- SAFE INTERCEPTING WINDOW LAUNCH RULES ---
-        function openInAboutBlank(targetUrl) {
-            const blankWindow = window.open('about:blank', '_blank');
-            
-            if (blankWindow && !blankWindow.closed) {
-                const doc = blankWindow.document;
-                doc.write(`
-                    <!DOCTYPE html>
-                    <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <title>Academic Resource System</title>
-                        <style>
-                            body, html { margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden; background: #fff; }
-                            iframe { border: none; width: 100%; height: 100%; display: block; }
-                        </style>
-                    </head>
-                    <body>
-                        <iframe src="${targetUrl}"></iframe>
-                    </body>
-                    </html>
-                `);
-                doc.close();
-            } else {
-                // Trigger the alert popup layout engine if launch configuration criteria fail
-                showNotice();
-            }
+        function openInSameTabFrame(targetUrl) {
+            document.body.innerHTML = "";
+            document.documentElement.style.width = "100%";
+            document.documentElement.style.height = "100%";
+            document.body.style.margin = "0";
+            document.body.style.padding = "0";
+            document.body.style.width = "100%";
+            document.body.style.height = "100%";
+            document.body.style.overflow = "hidden";
+            document.body.style.background = "#fff";
+
+            const targetIFrame = document.createElement('iframe');
+            targetIFrame.src = targetUrl;
+            targetIFrame.style.border = "none";
+            targetIFrame.style.width = "100%";
+            targetIFrame.style.height = "100%";
+            targetIFrame.style.display = "block";
+
+            document.body.appendChild(targetIFrame);
         }
 
         function renderUI(groups) {
@@ -350,7 +335,7 @@
                     
                     row.onclick = (e) => {
                         e.preventDefault();
-                        openInAboutBlank(linkItem.url);
+                        openInSameTabFrame(linkItem.url);
                     };
 
                     const span = document.createElement('span');
@@ -395,6 +380,8 @@
                 }
             }
         }
+
+        fetchDataAndCloak();
     </script>
 </body>
 </html>
