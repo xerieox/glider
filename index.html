@@ -383,13 +383,10 @@
             const entertainmentBox = document.getElementById('entertainment-container');
             proxyBox.innerHTML = ""; gameBox.innerHTML = ""; entertainmentBox.innerHTML = "";
 
-            // --- THIS IS THE NEW SORTING SCRIPT ---
-            // Convert the groups object into an array and sort it based on the number of links inside each group
             const sortedGroups = Object.entries(groups).sort((a, b) => {
                 return a[1].links.length - b[1].links.length;
             });
 
-            // Iterate over the newly sorted array instead of the raw Object.entries()
             for (const [name, data] of sortedGroups) {
                 const bubble = document.createElement('div');
                 bubble.className = 'link-bubble';
@@ -440,7 +437,7 @@
 
                     setTimeout(() => {
                         const containerWidth = row.offsetWidth;
-                        const textWidth = span.offsetWidth;
+                        const textWidth = span.scrollWidth; // Safely swapped to scrollWidth for accuracy
                         if (textWidth > containerWidth) {
                             const overflowDistance = textWidth - containerWidth;
                             span.style.setProperty('--scroll-distance', `-${overflowDistance}px`);
@@ -469,7 +466,32 @@
             document.body.appendChild(targetIFrame);
         }
 
-        function showArchive() { document.getElementById('view-decoy').style.display = 'none'; document.getElementById('view-archive').style.display = 'flex'; document.body.style.background = "#0b1622"; }
+        function showArchive() { 
+            document.getElementById('view-decoy').style.display = 'none'; 
+            document.getElementById('view-archive').style.display = 'flex'; 
+            document.body.style.background = "#0b1622"; 
+            
+            // Re-trigger width calculations the moment the view enters 'display: flex'
+            setTimeout(() => {
+                document.querySelectorAll('.link-row-container').forEach(container => {
+                    const row = container.querySelector('.mirror-row');
+                    const span = container.querySelector('.url-text');
+                    if (row && span) {
+                        const containerWidth = row.offsetWidth;
+                        const textWidth = span.scrollWidth;
+                        if (textWidth > containerWidth) {
+                            const overflowDistance = textWidth - containerWidth;
+                            span.style.setProperty('--scroll-distance', `-${overflowDistance}px`);
+                            span.style.setProperty('--scroll-duration', (overflowDistance / 50) + 's');
+                            span.style.animation = ''; // Ensures animation is properly applied
+                        } else {
+                            span.style.animation = 'none';
+                        }
+                    }
+                });
+            }, 50);
+        }
+        
         function showHome() { document.getElementById('view-archive').style.display = 'none'; document.getElementById('view-decoy').style.display = 'flex'; document.body.style.background = "#ffffff"; }
         function showNotice() { document.getElementById('pop-blocker-notice').style.display = 'flex'; }
         function closeNotice() { document.getElementById('pop-blocker-notice').style.display = 'none'; }
